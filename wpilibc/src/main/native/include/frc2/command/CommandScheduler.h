@@ -10,7 +10,8 @@
 #include <frc/ErrorBase.h>
 #include <frc/RobotState.h>
 #include <frc/WPIErrors.h>
-#include <frc/smartdashboard/SendableBase.h>
+#include <frc/smartdashboard/Sendable.h>
+#include <frc/smartdashboard/SendableHelper.h>
 
 #include <memory>
 #include <unordered_map>
@@ -34,7 +35,9 @@ class Subsystem;
  * with the scheduler using RegisterSubsystem() in order for their Periodic()
  * methods to be called and for their default commands to be scheduled.
  */
-class CommandScheduler final : public frc::SendableBase, frc::ErrorBase {
+class CommandScheduler final : public frc::Sendable,
+                               public frc::ErrorBase,
+                               public frc::SendableHelper<CommandScheduler> {
  public:
   /**
    * Returns the Scheduler instance.
@@ -170,8 +173,8 @@ class CommandScheduler final : public frc::SendableBase, frc::ErrorBase {
    * @param subsystem      the subsystem whose default command will be set
    * @param defaultCommand the default command to associate with the subsystem
    */
-  template <class T, typename = std::enable_if_t<std::is_base_of<
-                         Command, std::remove_reference_t<T>>::value>>
+  template <class T, typename = std::enable_if_t<std::is_base_of_v<
+                         Command, std::remove_reference_t<T>>>>
   void SetDefaultCommand(Subsystem* subsystem, T&& defaultCommand) {
     if (!defaultCommand.HasRequirement(subsystem)) {
       wpi_setWPIErrorWithContext(
